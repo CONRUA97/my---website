@@ -1,1 +1,149 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lịch có đánh dấu</title>
 
+<style>
+body {
+  font-family: Arial;
+  text-align: center;
+}
+
+.calendar {
+  width: 420px;
+  margin: 20px auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+button {
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.day {
+  border: 1px solid #ccc;
+  padding: 10px;
+  height: 60px;
+  position: relative;
+  cursor: pointer;
+}
+
+.day:hover {
+  background: #f0f0f0;
+}
+
+.today {
+  background: lightgreen;
+}
+
+.checked {
+  background: #90ee90;
+}
+
+.checkmark {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  color: green;
+  font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<h2>📅 Lịch cá nhân</h2>
+
+<div class="calendar">
+  <div class="header">
+    <button onclick="changeMonth(-1)">◀</button>
+    <h3 id="monthYear"></h3>
+    <button onclick="changeMonth(1)">▶</button>
+  </div>
+
+  <div class="grid" id="calendar"></div>
+</div>
+
+<script>
+let currentDate = new Date();
+
+function renderCalendar() {
+  const calendar = document.getElementById("calendar");
+  calendar.innerHTML = "";
+
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
+  const today = new Date();
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const totalDays = new Date(year, month + 1, 0).getDate();
+
+  document.getElementById("monthYear").innerText =
+    `Tháng ${month + 1} / ${year}`;
+
+  // ô trống đầu tháng
+  for (let i = 0; i < firstDay; i++) {
+    const empty = document.createElement("div");
+    calendar.appendChild(empty);
+  }
+
+  for (let i = 1; i <= totalDays; i++) {
+    const day = document.createElement("div");
+    day.classList.add("day");
+    day.innerText = i;
+
+    const key = `${year}-${month}-${i}`;
+
+    // load trạng thái tick
+    if (localStorage.getItem(key)) {
+      day.classList.add("checked");
+      day.innerHTML += "<div class='checkmark'>✔</div>";
+    }
+
+    // highlight hôm nay
+    if (
+      i === today.getDate() &&
+      month === today.getMonth() &&
+      year === today.getFullYear()
+    ) {
+      day.classList.add("today");
+    }
+
+    // click để tick
+    day.onclick = () => {
+      if (localStorage.getItem(key)) {
+        localStorage.removeItem(key);
+      } else {
+        localStorage.setItem(key, true);
+      }
+      renderCalendar();
+    };
+
+    calendar.appendChild(day);
+  }
+}
+
+function changeMonth(step) {
+  currentDate.setMonth(currentDate.getMonth() + step);
+  renderCalendar();
+}
+
+renderCalendar();
+</script>
+
+</body>
+</html>
